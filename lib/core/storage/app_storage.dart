@@ -11,7 +11,6 @@ class AppStorage {
   static const _activityKey = 'hydration.activity_level';
   static const _quickAmountsKey = 'hydration.quick_amounts_ml';
   static const _recordsKey = 'hydration.records';
-  static const _healthKey = 'hydration.health_enabled';
 
   double getWeightKg() => _prefs.getDouble(_weightKey) ?? 65;
 
@@ -25,23 +24,32 @@ class AppStorage {
   List<int> getQuickAmounts() {
     final encoded = _prefs.getString(_quickAmountsKey);
     if (encoded == null) return const [150, 250, 500];
-    final decoded = jsonDecode(encoded) as List<dynamic>;
-    return decoded.cast<int>();
+    try {
+      final decoded = jsonDecode(encoded) as List<dynamic>;
+      final values = decoded
+          .map((value) => (value as num).round().clamp(50, 2000))
+          .toList();
+      return values.length == 3 ? values : const [150, 250, 500];
+    } catch (_) {
+      return const [150, 250, 500];
+    }
   }
 
   Future<void> setQuickAmounts(List<int> values) =>
       _prefs.setString(_quickAmountsKey, jsonEncode(values));
 
-  bool getHealthEnabled() => _prefs.getBool(_healthKey) ?? true;
-
-  Future<void> setHealthEnabled(bool value) =>
-      _prefs.setBool(_healthKey, value);
-
   List<Map<String, dynamic>> getRecords() {
     final encoded = _prefs.getString(_recordsKey);
     if (encoded == null) return const [];
-    final decoded = jsonDecode(encoded) as List<dynamic>;
-    return decoded.cast<Map<String, dynamic>>();
+    try {
+      final decoded = jsonDecode(encoded) as List<dynamic>;
+      return decoded
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   Future<void> setRecords(List<Map<String, dynamic>> records) =>

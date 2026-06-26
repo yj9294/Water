@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_icon_image.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../providers/hydration_provider.dart';
 import '../widgets/bottom_tab_bar.dart';
 import '../widgets/soft_card.dart';
@@ -17,16 +20,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<HydrationProvider>();
+    final progressPercent = (provider.todayProgress * 100)
+        .clamp(0, 999)
+        .round();
+    final latestRecord = provider.latestTodayRecord;
+    final consumedNote = latestRecord == null
+        ? 'First sip pending'
+        : '+${latestRecord.amountMl} ml · ${DateFormatter.hm(latestRecord.createdAt)}';
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageX,
         88,
         AppSpacing.pageX,
-        112,
+        AppSpacing.pageBottomWithTab,
       ),
       physics: const BouncingScrollPhysics(),
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
@@ -36,6 +47,8 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'Good morning. Keep your hydration gentle and steady.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.body.copyWith(fontSize: 14),
                   ),
                 ],
@@ -45,7 +58,10 @@ class HomePage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
-        _HomeHero(onTap: () => onOpenTab(WaterTab.log)),
+        _HomeHero(
+          progressPercent: progressPercent,
+          onTap: () => onOpenTab(WaterTab.log),
+        ),
         const SizedBox(height: 14),
         Row(
           children: [
@@ -53,7 +69,7 @@ class HomePage extends StatelessWidget {
               child: _MetricCard(
                 label: "Today's goal",
                 value: '${provider.dailyTargetMl} ml',
-                note: 'WHO based',
+                note: 'Profile based',
               ),
             ),
             const SizedBox(width: 12),
@@ -61,7 +77,7 @@ class HomePage extends StatelessWidget {
               child: _MetricCard(
                 label: 'Consumed',
                 value: '${provider.todayConsumedMl} ml',
-                note: '+${provider.quickAmounts[1]} ml at noon',
+                note: consumedNote,
               ),
             ),
           ],
@@ -69,28 +85,20 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 14),
         _MenuRow(
           title: 'Quick hydration',
-          subtitle: 'Log 150, 250, or 500 ml in one tap.',
-          icon: const WaterDrop(width: 22, height: 26),
+          subtitle: 'Log ${provider.quickAmounts.join(', ')} ml in one tap.',
+          iconAsset: AppAssets.iconQuickHydrationSvg,
           onTap: () => onOpenTab(WaterTab.log),
         ),
         _MenuRow(
           title: 'Water tracking',
           subtitle: 'Review completion rate and daily records.',
-          icon: const Icon(
-            CupertinoIcons.chart_bar_alt_fill,
-            color: AppColors.aqua,
-            size: 23,
-          ),
+          iconAsset: AppAssets.iconMenuTrackingSvg,
           onTap: () => onOpenTab(WaterTab.insights),
         ),
         _MenuRow(
           title: 'Smart target',
           subtitle: 'Calculate goals with weight and activity.',
-          icon: const Icon(
-            CupertinoIcons.scope,
-            color: AppColors.aqua,
-            size: 23,
-          ),
+          iconAsset: AppAssets.iconMenuTargetSvg,
           onTap: () => onOpenTab(WaterTab.target),
         ),
       ],
@@ -116,10 +124,10 @@ class _SettingsButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(21),
           border: Border.all(color: const Color(0xFF3D6388)),
         ),
-        child: const Icon(
-          CupertinoIcons.gear_alt,
-          color: AppColors.text,
+        child: const AppIconImage(
+          asset: AppAssets.iconSettingsSvg,
           size: 22,
+          color: AppColors.text,
         ),
       ),
     );
@@ -127,8 +135,9 @@ class _SettingsButton extends StatelessWidget {
 }
 
 class _HomeHero extends StatelessWidget {
-  const _HomeHero({required this.onTap});
+  const _HomeHero({required this.progressPercent, required this.onTap});
 
+  final int progressPercent;
   final VoidCallback onTap;
 
   @override
@@ -149,14 +158,15 @@ class _HomeHero extends StatelessWidget {
           border: Border.all(color: const Color(0xFF3C92E8)),
         ),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             Positioned(
-              right: -4,
-              bottom: -6,
+              right: 28,
+              top: 42,
               child: WaterDrop(
-                color: const Color(0xFFB8F8FF),
-                width: 116,
-                height: 142,
+                color: const Color(0x99B8F8FF),
+                width: 52,
+                height: 66,
               ),
             ),
             Column(
@@ -168,7 +178,7 @@ class _HomeHero extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '32% done. Three small sips\ncan move the day.',
+                  '$progressPercent% done. Three small sips\ncan move the day.',
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.text,
                     fontSize: 13,
@@ -176,7 +186,7 @@ class _HomeHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  height: 38,
+                  constraints: const BoxConstraints(minHeight: 38),
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
@@ -215,25 +225,40 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SoftCard(
-      height: 100,
+      height: 108,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.label),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label,
+          ),
           const Spacer(),
-          FittedBox(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                color: AppColors.text,
+          SizedBox(
+            height: 34,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
+                ),
               ),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             note,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.label.copyWith(color: AppColors.mint),
           ),
         ],
@@ -246,13 +271,13 @@ class _MenuRow extends StatelessWidget {
   const _MenuRow({
     required this.title,
     required this.subtitle,
-    required this.icon,
+    required this.iconAsset,
     required this.onTap,
   });
 
   final String title;
   final String subtitle;
-  final Widget icon;
+  final String iconAsset;
   final VoidCallback onTap;
 
   @override
@@ -263,7 +288,7 @@ class _MenuRow extends StatelessWidget {
         padding: EdgeInsets.zero,
         onPressed: onTap,
         child: SoftCard(
-          height: 64,
+          height: 68,
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Row(
             children: [
@@ -275,7 +300,11 @@ class _MenuRow extends StatelessWidget {
                   color: const Color(0xFF214964),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: icon,
+                child: AppIconImage(
+                  asset: iconAsset,
+                  size: 23,
+                  color: AppColors.aqua,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -285,6 +314,8 @@ class _MenuRow extends StatelessWidget {
                   children: [
                     Text(
                       title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,

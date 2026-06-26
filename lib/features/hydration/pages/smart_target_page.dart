@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../models/activity_level.dart';
 import '../providers/hydration_provider.dart';
 import '../widgets/ios_nav_bar.dart';
@@ -22,7 +24,7 @@ class SmartTargetPage extends StatelessWidget {
         AppSpacing.pageX,
         58,
         AppSpacing.pageX,
-        112,
+        AppSpacing.pageBottomWithTab,
       ),
       physics: const BouncingScrollPhysics(),
       children: [
@@ -45,13 +47,6 @@ class SmartTargetPage extends StatelessWidget {
               _ProfileRow(
                 label: 'Daily target',
                 value: '${provider.dailyTargetMl} ml',
-              ),
-              const _Divider(),
-              _ProfileRow(
-                label: 'Apple Health',
-                value: provider.healthEnabled ? 'On' : 'Off',
-                onTap: () =>
-                    provider.toggleHealthEnabled(!provider.healthEnabled),
               ),
             ],
           ),
@@ -94,6 +89,8 @@ class SmartTargetPage extends StatelessWidget {
                       ),
                       child: Text(
                         level.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: selected
                               ? AppColors.bg
@@ -134,6 +131,8 @@ class SmartTargetPage extends StatelessWidget {
                     ),
                     child: Text(
                       '$amount ml',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.text,
                         fontSize: 17,
@@ -147,22 +146,30 @@ class SmartTargetPage extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 18),
-        Container(
-          height: 42,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColors.aqua,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: const Text(
-            'Save target',
-            style: TextStyle(
-              color: AppColors.bg,
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _saveTarget(context, provider),
+          child: Container(
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.aqua,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Text(
+              'Done',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: AppColors.bg,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ),
+        const SizedBox(height: 14),
+        const _OfficialSourcesCard(),
       ],
     );
   }
@@ -253,13 +260,106 @@ class SmartTargetPage extends StatelessWidget {
       },
     );
   }
+
+  Future<void> _saveTarget(
+    BuildContext context,
+    HydrationProvider provider,
+  ) async {
+    await provider.saveTargetSettings();
+    if (!context.mounted) return;
+    AppToast.show(
+      context,
+      'Settings saved. Daily target is ${provider.dailyTargetMl} ml.',
+    );
+  }
+}
+
+class _OfficialSourcesCard extends StatelessWidget {
+  const _OfficialSourcesCard();
+
+  static final Uri _cdc = Uri.parse(
+    'https://www.cdc.gov/healthy-weight-growth/water-healthy-drinks/index.html',
+  );
+  static final Uri _nhs = Uri.parse(
+    'https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/water-drinks-nutrition/',
+  );
+  static final Uri _who = Uri.parse(
+    'https://www.who.int/news-room/fact-sheets/detail/drinking-water',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return SoftCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Official sources',
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: 16),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Hydration targets in this app are tracking estimates, not medical advice. For health guidance, refer to official public health sources.',
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label,
+          ),
+          const SizedBox(height: 10),
+          _SourceLink(label: 'CDC water and healthier drinks', uri: _cdc),
+          _SourceLink(label: 'NHS water, drinks and nutrition', uri: _nhs),
+          _SourceLink(label: 'WHO drinking-water fact sheet', uri: _who),
+        ],
+      ),
+    );
+  }
+}
+
+class _SourceLink extends StatelessWidget {
+  const _SourceLink({required this.label, required this.uri});
+
+  final String label;
+  final Uri uri;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      minimumSize: Size.zero,
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.aqua,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const Text(
+            'Open',
+            style: TextStyle(
+              color: AppColors.secondaryText,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 130,
+      height: 136,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -271,22 +371,27 @@ class _Hero extends StatelessWidget {
         border: Border.all(color: const Color(0xFF3C92E8)),
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           const Positioned(
-            right: 4,
-            bottom: -16,
-            child: WaterDrop(color: AppColors.mint, width: 108, height: 130),
+            right: 12,
+            bottom: 8,
+            child: WaterDrop(color: Color(0x9973EFD0), width: 72, height: 90),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Build today's\ngoal",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.cardTitle.copyWith(fontSize: 25),
               ),
               const Spacer(),
               Text(
                 'No blind 8 cups. Your body,\nyour rhythm.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.body.copyWith(
                   color: AppColors.text,
                   fontSize: 13,
@@ -321,6 +426,8 @@ class _ProfileRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.text,
                   fontSize: 14,
@@ -340,6 +447,8 @@ class _ProfileRow extends StatelessWidget {
                 ),
                 child: Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.aqua,
                     fontSize: 12,

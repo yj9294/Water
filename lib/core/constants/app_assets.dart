@@ -1,10 +1,16 @@
 class AppAssets {
   const AppAssets._();
 
-  static const iconHome = 'assets/icons/icon_home.png';
-  static const iconLog = 'assets/icons/icon_log.png';
-  static const iconInsights = 'assets/icons/icon_insights.png';
-  static const iconTarget = 'assets/icons/icon_target.png';
-  static const iconDrop = 'assets/icons/icon_drop.png';
+  static const iconHomeSvg = 'assets/icons/svg/icon_home.svg';
+  static const iconLogSvg = 'assets/icons/svg/icon_log.svg';
+  static const iconInsightsSvg = 'assets/icons/svg/icon_insights.svg';
+  static const iconTargetSvg = 'assets/icons/svg/icon_target.svg';
+  static const iconDropSvg = 'assets/icons/svg/icon_drop.svg';
+  static const iconQuickHydrationSvg =
+      'assets/icons/svg/icon_quick_hydration.svg';
+  static const iconMenuTrackingSvg = 'assets/icons/svg/icon_menu_tracking.svg';
+  static const iconMenuTargetSvg = 'assets/icons/svg/icon_menu_target.svg';
+  static const iconSettingsSvg = 'assets/icons/svg/icon_settings.svg';
+  static const iconCalculationSvg = 'assets/icons/svg/icon_calculation.svg';
   static const appLogo = 'assets/images/app_logo.png';
 }

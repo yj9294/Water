@@ -24,37 +24,45 @@ class WaterTrackingPage extends StatelessWidget {
         AppSpacing.pageX,
         58,
         AppSpacing.pageX,
-        112,
+        AppSpacing.pageBottomWithTab,
       ),
       physics: const BouncingScrollPhysics(),
       children: [
         const IosNavBar(title: 'Water Tracking', showBack: false),
         const SizedBox(height: 10),
         SoftCard(
-          height: 350,
           radius: 26,
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 230,
-                height: 220,
+                width: 210,
+                height: 200,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     CustomPaint(
-                      size: const Size(210, 210),
+                      size: const Size(190, 190),
                       painter: _RingPainter(provider.todayProgress.clamp(0, 1)),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '${(provider.todayProgress * 100).round()}%',
-                          style: const TextStyle(
-                            fontSize: 46,
-                            height: 1,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.text,
+                        SizedBox(
+                          width: 130,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '${(provider.todayProgress * 100).round()}%',
+                              maxLines: 1,
+                              style: const TextStyle(
+                                fontSize: 44,
+                                height: 1,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.text,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 7),
@@ -148,21 +156,40 @@ class _StatBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SoftCard(
-      height: 94,
-      color: const Color(0xFF40516C),
-      borderColor: const Color(0xFF536780),
+    return Container(
+      height: 86,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF40516C),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF536780)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.label),
-          const Spacer(),
           Text(
-            value,
-            style: const TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.w800,
-              color: AppColors.text,
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label,
+          ),
+          const Spacer(),
+          SizedBox(
+            height: 28,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
+                ),
+              ),
             ),
           ),
           Text(
@@ -185,7 +212,6 @@ class _RecordRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: SoftCard(
-        height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
@@ -196,6 +222,8 @@ class _RecordRow extends StatelessWidget {
                 children: [
                   Text(
                     summary.dateKey,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.text,
                       fontSize: 16,
@@ -205,17 +233,28 @@ class _RecordRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Weight: ${summary.weightKg.round()} kg',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.label,
                   ),
                 ],
               ),
             ),
-            Text(
-              '${summary.consumedMl}/${summary.targetMl}',
-              style: const TextStyle(
-                color: AppColors.aqua,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
+            const SizedBox(width: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 122),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${summary.consumedMl}/${summary.targetMl}',
+                  maxLines: 1,
+                  style: const TextStyle(
+                    color: AppColors.aqua,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ),
           ],

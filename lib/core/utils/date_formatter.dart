@@ -26,4 +26,10 @@ class DateFormatter {
     ];
     return '${weekdays[date.weekday - 1]} · ${months[date.month - 1]} ${date.day}';
   }
+
+  static String hm(DateTime date) {
+    final h = date.hour.toString().padLeft(2, '0');
+    final m = date.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
 }

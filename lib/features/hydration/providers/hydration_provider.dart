@@ -19,12 +19,14 @@ class HydrationProvider extends ChangeNotifier {
   ActivityLevel _activityLevel = ActivityLevel.moderate;
   List<int> _quickAmounts = const [150, 250, 500];
   List<HydrationRecord> _records = [];
-  bool _healthEnabled = true;
+  int _todayConsumedMl = 0;
+  HydrationRecord? _latestTodayRecord;
+  List<DailyHydrationSummary> _historicalSummaries = const [];
+  List<double> _weekProgress = const [0, 0, 0, 0, 0, 0, 0];
 
   double get weightKg => _weightKg;
   ActivityLevel get activityLevel => _activityLevel;
   List<int> get quickAmounts => List.unmodifiable(_quickAmounts);
-  bool get healthEnabled => _healthEnabled;
   List<HydrationRecord> get records => List.unmodifiable(_records);
 
   int get dailyTargetMl =>
@@ -32,9 +34,7 @@ class HydrationProvider extends ChangeNotifier {
 
   String get todayKey => DateFormatter.ymd(DateTime.now());
 
-  int get todayConsumedMl => _records
-      .where((record) => record.dateKey == todayKey)
-      .fold(0, (sum, record) => sum + record.amountMl);
+  int get todayConsumedMl => _todayConsumedMl;
 
   double get todayProgress {
     if (dailyTargetMl <= 0) return 0;
@@ -48,13 +48,29 @@ class HydrationProvider extends ChangeNotifier {
     consumedMl: todayConsumedMl,
   );
 
-  List<DailyHydrationSummary> get historicalSummaries {
+  HydrationRecord? get latestTodayRecord => _latestTodayRecord;
+
+  List<DailyHydrationSummary> get historicalSummaries =>
+      List.unmodifiable(_historicalSummaries);
+
+  List<double> get weekProgress => List.unmodifiable(_weekProgress);
+
+  void _recalculateDerivedState() {
+    _todayConsumedMl = _records
+        .where((record) => record.dateKey == todayKey)
+        .fold(0, (sum, record) => sum + record.amountMl);
+
+    final todayRecords =
+        _records.where((record) => record.dateKey == todayKey).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    _latestTodayRecord = todayRecords.isEmpty ? null : todayRecords.first;
+
     final grouped = <String, List<HydrationRecord>>{};
     for (final record in _records) {
       grouped.putIfAbsent(record.dateKey, () => []).add(record);
     }
 
-    final summaries = grouped.entries.map((entry) {
+    _historicalSummaries = grouped.entries.map((entry) {
       final sorted = [...entry.value]
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       final latest = sorted.first;
@@ -70,17 +86,13 @@ class HydrationProvider extends ChangeNotifier {
       );
     }).toList()..sort((a, b) => b.dateKey.compareTo(a.dateKey));
 
-    return summaries;
-  }
-
-  List<double> get weekProgress {
     final now = DateTime.now();
     final start = DateTime(
       now.year,
       now.month,
       now.day,
     ).subtract(Duration(days: now.weekday - 1));
-    return List.generate(7, (index) {
+    _weekProgress = List.generate(7, (index) {
       final key = DateFormatter.ymd(start.add(Duration(days: index)));
       final consumed = _records
           .where((record) => record.dateKey == key)
@@ -90,6 +102,7 @@ class HydrationProvider extends ChangeNotifier {
   }
 
   Future<void> addWater(int amountMl) async {
+    if (amountMl < 50 || amountMl > 2000) return;
     final record = HydrationRecord(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       amountMl: amountMl,
@@ -98,25 +111,22 @@ class HydrationProvider extends ChangeNotifier {
       targetMl: dailyTargetMl,
     );
     _records = [..._records, record];
-    await _saveRecords();
+    _recalculateDerivedState();
     notifyListeners();
+    await _saveRecords();
   }
 
   Future<void> updateWeight(double value) async {
     _weightKg = value.clamp(20, 300);
+    _recalculateDerivedState();
     await _storage.setWeightKg(_weightKg);
     notifyListeners();
   }
 
   Future<void> updateActivityLevel(ActivityLevel level) async {
     _activityLevel = level;
+    _recalculateDerivedState();
     await _storage.setActivityLevel(level.id);
-    notifyListeners();
-  }
-
-  Future<void> toggleHealthEnabled(bool enabled) async {
-    _healthEnabled = enabled;
-    await _storage.setHealthEnabled(enabled);
     notifyListeners();
   }
 
@@ -129,57 +139,22 @@ class HydrationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> saveTargetSettings() async {
+    await Future.wait([
+      _storage.setWeightKg(_weightKg),
+      _storage.setActivityLevel(_activityLevel.id),
+      _storage.setQuickAmounts(_quickAmounts),
+    ]);
+    notifyListeners();
+  }
+
   void _load() {
     _weightKg = _storage.getWeightKg();
     _activityLevel = ActivityLevel.fromId(_storage.getActivityLevel());
     _quickAmounts = _storage.getQuickAmounts();
-    _healthEnabled = _storage.getHealthEnabled();
     _records = _storage.getRecords().map(HydrationRecord.fromJson).toList();
-    _seedDemoDataIfNeeded();
+    _recalculateDerivedState();
     notifyListeners();
-  }
-
-  void _seedDemoDataIfNeeded() {
-    if (_records.isNotEmpty) return;
-    final now = DateTime.now();
-    final target = dailyTargetMl;
-    _records = [
-      HydrationRecord(
-        id: 'seed-1',
-        amountMl: 500,
-        createdAt: DateTime(now.year, now.month, now.day, 9, 10),
-        weightKg: _weightKg,
-        targetMl: target,
-      ),
-      HydrationRecord(
-        id: 'seed-2',
-        amountMl: 250,
-        createdAt: DateTime(now.year, now.month, now.day, 12, 20),
-        weightKg: _weightKg,
-        targetMl: target,
-      ),
-      HydrationRecord(
-        id: 'seed-3',
-        amountMl: 300,
-        createdAt: DateTime(now.year, now.month, now.day, 14, 30),
-        weightKg: _weightKg,
-        targetMl: target,
-      ),
-      HydrationRecord(
-        id: 'seed-4',
-        amountMl: max(0, target - 445),
-        createdAt: now.subtract(const Duration(days: 1)),
-        weightKg: _weightKg,
-        targetMl: target,
-      ),
-      HydrationRecord(
-        id: 'seed-5',
-        amountMl: target + 75,
-        createdAt: now.subtract(const Duration(days: 2)),
-        weightKg: _weightKg + 1,
-        targetMl: target,
-      ),
-    ];
   }
 
   Future<void> _saveRecords() async {

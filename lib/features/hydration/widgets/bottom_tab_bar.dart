@@ -25,7 +25,7 @@ class BottomTabBar extends StatelessWidget {
       bottom: AppSpacing.tabBottom,
       child: Container(
         height: AppSpacing.tabHeight,
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+        padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
         decoration: BoxDecoration(
           color: AppColors.tabBar,
           borderRadius: BorderRadius.circular(AppSpacing.tabRadius),
@@ -67,17 +67,24 @@ class _TabItem extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        AppIconImage(asset: _asset, size: 23, color: color),
-        const SizedBox(height: 4),
-        Text(
-          _label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: color,
+        AppIconImage(asset: _asset, size: 25, color: color),
+        const SizedBox(height: 3),
+        SizedBox(
+          height: 13,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              _label,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 4),
         AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           width: active ? 36 : 0,
@@ -99,9 +106,9 @@ class _TabItem extends StatelessWidget {
   };
 
   String get _asset => switch (tab) {
-    WaterTab.home => AppAssets.iconHome,
-    WaterTab.log => AppAssets.iconLog,
-    WaterTab.insights => AppAssets.iconInsights,
-    WaterTab.target => AppAssets.iconTarget,
+    WaterTab.home => AppAssets.iconHomeSvg,
+    WaterTab.log => AppAssets.iconLogSvg,
+    WaterTab.insights => AppAssets.iconInsightsSvg,
+    WaterTab.target => AppAssets.iconTargetSvg,
   };
 }

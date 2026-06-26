@@ -19,6 +19,12 @@ class HydrationShellPage extends StatefulWidget {
 
 class _HydrationShellPageState extends State<HydrationShellPage> {
   WaterTab _tab = WaterTab.home;
+  late final List<Widget> _pages = [
+    HomePage(onOpenTab: _openTab),
+    const WaterAssistantPage(),
+    const WaterTrackingPage(),
+    const SmartTargetPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +37,21 @@ class _HydrationShellPageState extends State<HydrationShellPage> {
             builder: (context, provider, _) {
               return Stack(
                 children: [
-                  Positioned.fill(child: _buildCurrentPage(provider)),
-                  BottomTabBar(
-                    current: _tab,
-                    onChanged: (tab) => setState(() => _tab = tab),
+                  Positioned.fill(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeOutCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(_tab),
+                        child: IndexedStack(
+                          index: _tab.index,
+                          children: _pages,
+                        ),
+                      ),
+                    ),
                   ),
+                  BottomTabBar(current: _tab, onChanged: _openTab),
                 ],
               );
             },
@@ -45,12 +61,8 @@ class _HydrationShellPageState extends State<HydrationShellPage> {
     );
   }
 
-  Widget _buildCurrentPage(HydrationProvider provider) {
-    return switch (_tab) {
-      WaterTab.home => HomePage(onOpenTab: (tab) => setState(() => _tab = tab)),
-      WaterTab.log => const WaterAssistantPage(),
-      WaterTab.insights => const WaterTrackingPage(),
-      WaterTab.target => const SmartTargetPage(),
-    };
+  void _openTab(WaterTab tab) {
+    if (tab == _tab) return;
+    setState(() => _tab = tab);
   }
 }

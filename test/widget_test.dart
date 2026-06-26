@@ -12,6 +12,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HydraPal'), findsOneWidget);
+
+    await tester.drag(find.text('HydraPal'), const Offset(0, -360));
+    await tester.pumpAndSettle();
+
     expect(find.text('Quick hydration'), findsWidgets);
   });
 }

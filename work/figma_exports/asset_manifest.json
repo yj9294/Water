@@ -1,0 +1,139 @@
+[
+  {
+    "nodeId": "8:68",
+    "file": "assets/icons/icon_home.png",
+    "variants": [
+      "assets/2.0x/icons/icon_home.png",
+      "assets/3.0x/icons/icon_home.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:73",
+    "file": "assets/icons/icon_log.png",
+    "variants": [
+      "assets/2.0x/icons/icon_log.png",
+      "assets/3.0x/icons/icon_log.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:76",
+    "file": "assets/icons/icon_insights.png",
+    "variants": [
+      "assets/2.0x/icons/icon_insights.png",
+      "assets/3.0x/icons/icon_insights.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:84",
+    "file": "assets/icons/icon_target.png",
+    "variants": [
+      "assets/2.0x/icons/icon_target.png",
+      "assets/3.0x/icons/icon_target.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:29",
+    "file": "assets/icons/icon_drop.png",
+    "variants": [
+      "assets/2.0x/icons/icon_drop.png",
+      "assets/3.0x/icons/icon_drop.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:41",
+    "file": "assets/icons/icon_quick_hydration.png",
+    "variants": [
+      "assets/2.0x/icons/icon_quick_hydration.png",
+      "assets/3.0x/icons/icon_quick_hydration.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:47",
+    "file": "assets/icons/icon_menu_tracking.png",
+    "variants": [
+      "assets/2.0x/icons/icon_menu_tracking.png",
+      "assets/3.0x/icons/icon_menu_tracking.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:58",
+    "file": "assets/icons/icon_menu_target.png",
+    "variants": [
+      "assets/2.0x/icons/icon_menu_target.png",
+      "assets/3.0x/icons/icon_menu_target.png"
+    ],
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:318",
+    "file": "assets/images/app_logo.png",
+    "source": "Figma REST export"
+  },
+  {
+    "nodeId": "8:68",
+    "file": "assets/icons/svg/icon_home.svg",
+    "source": "Figma REST SVG export",
+    "usage": "Bottom tab bar high-fidelity vector icon"
+  },
+  {
+    "nodeId": "8:73",
+    "file": "assets/icons/svg/icon_log.svg",
+    "source": "Figma REST SVG export",
+    "usage": "Bottom tab bar high-fidelity vector icon"
+  },
+  {
+    "nodeId": "8:76",
+    "file": "assets/icons/svg/icon_insights.svg",
+    "source": "Figma REST SVG export",
+    "usage": "Bottom tab bar high-fidelity vector icon"
+  },
+  {
+    "nodeId": "8:84",
+    "file": "assets/icons/svg/icon_target.svg",
+    "source": "Figma REST SVG export",
+    "usage": "Bottom tab bar high-fidelity vector icon"
+  },
+  {
+    "nodeId": "8:29",
+    "file": "assets/icons/svg/icon_drop.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for water drop icons"
+  },
+  {
+    "nodeId": "8:41",
+    "file": "assets/icons/svg/icon_quick_hydration.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for Home quick hydration icon"
+  },
+  {
+    "nodeId": "8:47",
+    "file": "assets/icons/svg/icon_menu_tracking.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for Home tracking icon"
+  },
+  {
+    "nodeId": "8:58",
+    "file": "assets/icons/svg/icon_menu_target.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for Home target icon"
+  },
+  {
+    "nodeId": "8:15",
+    "file": "assets/icons/svg/icon_settings.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for Home settings icon"
+  },
+  {
+    "nodeId": "8:128",
+    "file": "assets/icons/svg/icon_calculation.svg",
+    "source": "Local SVG vector matched to Figma icon style after Figma REST 429 limit",
+    "usage": "Vector replacement for Log calculation icon"
+  }
+]

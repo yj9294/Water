@@ -7,4 +7,7 @@ class AppSpacing {
   static const tabRadius = 28.0;
   static const tabHeight = 76.0;
   static const tabBottom = 14.0;
+  static const tabGap = 18.0;
+  static const pageBottomWithTab = tabHeight + tabBottom + tabGap + 28.0;
+  static const contentBottomInsetForTab = 106.0;
 }
