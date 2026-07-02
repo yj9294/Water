@@ -17,6 +17,7 @@ class AdMobConfig {
   );
   static const _iosReleaseRewardedUnitId = String.fromEnvironment(
     'ADMOB_IOS_REWARDED_ID',
+    defaultValue: 'ca-app-pub-5299142433513130/2292959136',
   );
 
   static String get rewardedAdUnitId {
