@@ -7,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_icon_image.dart';
 import '../../../core/utils/date_formatter.dart';
+import 'legal_pages.dart';
 import '../providers/hydration_provider.dart';
 import '../widgets/bottom_tab_bar.dart';
 import '../widgets/soft_card.dart';
@@ -54,7 +55,6 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            _SettingsButton(onTap: () => onOpenTab(WaterTab.target)),
           ],
         ),
         const SizedBox(height: 18),
@@ -101,35 +101,8 @@ class HomePage extends StatelessWidget {
           iconAsset: AppAssets.iconMenuTargetSvg,
           onTap: () => onOpenTab(WaterTab.target),
         ),
+        const _LegalSection(),
       ],
-    );
-  }
-}
-
-class _SettingsButton extends StatelessWidget {
-  const _SettingsButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: onTap,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A5279).withValues(alpha: .75),
-          borderRadius: BorderRadius.circular(21),
-          border: Border.all(color: const Color(0xFF3D6388)),
-        ),
-        child: const AppIconImage(
-          asset: AppAssets.iconSettingsSvg,
-          size: 22,
-          color: AppColors.text,
-        ),
-      ),
     );
   }
 }
@@ -334,6 +307,139 @@ class _MenuRow extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LegalSection extends StatelessWidget {
+  const _LegalSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: SoftCard(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Legal & Support',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Privacy, terms and help pages live here as static screens.',
+              style: AppTextStyles.label.copyWith(fontSize: 11),
+            ),
+            const SizedBox(height: 10),
+            _LegalEntry(
+              icon: CupertinoIcons.shield_lefthalf_fill,
+              title: 'Privacy Policy',
+              subtitle: 'How data is stored and used.',
+              onTap: () => _open(context, const PrivacyPolicyPage()),
+            ),
+            const SizedBox(height: 8),
+            _LegalEntry(
+              icon: CupertinoIcons.doc_text_fill,
+              title: 'Terms of Service',
+              subtitle: 'Rules and usage notes for the app.',
+              onTap: () => _open(context, const TermsPage()),
+            ),
+            const SizedBox(height: 8),
+            _LegalEntry(
+              icon: CupertinoIcons.mail_solid,
+              title: 'Support',
+              subtitle: 'Contact and troubleshooting help.',
+              onTap: () => _open(context, const SupportPage()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _open(BuildContext context, Widget page) {
+    Navigator.of(context).push(CupertinoPageRoute<void>(builder: (_) => page));
+  }
+}
+
+class _LegalEntry extends StatelessWidget {
+  const _LegalEntry({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: onTap,
+      child: Container(
+        height: 62,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF214964).withValues(alpha: .82),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFF315F83)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: const Color(0xFF173955),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: AppColors.aqua, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.label.copyWith(fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              CupertinoIcons.chevron_forward,
+              size: 18,
+              color: AppColors.secondaryText,
+            ),
+          ],
         ),
       ),
     );
